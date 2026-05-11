@@ -20,46 +20,74 @@ header p{font-size:10px;color:#444}
 .ttl{font-size:15px;color:#e2e2e2;line-height:1.45}
 .kw{font-size:11px;color:#c8f135;font-weight:600}
 .empty{padding:3rem 1rem;text-align:center;color:#444;font-size:14px}
-.loading{padding:3rem 1rem;text-align:center;color:#555;font-size:13px}
 </style>
 </head>
 <body>
 <header><h1>ZLATTI NEWS</h1><p id="ts">@Zlatti_71</p></header>
-<div id="feed"><div class="loading">Loading...</div></div>
+<div id="feed"><div class="empty">Loading...</div></div>
 <script>
-var BC = {L:'#4ade80',ML:'#60a5fa',C:'#9ca3af',MR:'#fb923c',R:'#f87171',ST:'#c084fc'};
+var BC={L:'#4ade80',ML:'#60a5fa',C:'#9ca3af',MR:'#fb923c',R:'#f87171',ST:'#c084fc'};
 function fmt(d){
   if(!d)return'';
-  try{var dt=new Date(d);return('0'+dt.getHours()).slice(-2)+':'+('0'+dt.getMinutes()).slice(-2);}catch(e){return'';}
+  try{var dt=new Date(d);if(isNaN(dt))return'';return('0'+dt.getHours()).slice(-2)+':'+('0'+dt.getMinutes()).slice(-2);}catch(e){return'';}
 }
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s){
+  if(!s)return'';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 function render(arts){
   var feed=document.getElementById('feed');
   if(!arts||!arts.length){feed.innerHTML='<div class="empty">No articles.</div>';return;}
   var html='';
   arts.forEach(function(a){
     var col=BC[a.bias]||'#888';
-    var hit=a.hit;
-    html+='<a class="item'+(hit?' hit':'')+'" href="'+a.link+'">'
+    var hit=!!a.hit;
+    var kws=a.kws&&a.kws.length?a.kws:[];
+    html+='<a class="item'+(hit?' hit':'')+'" href="'+esc(a.link)+'" target="_blank">'
       +'<span class="badge" style="color:'+col+';border-color:'+col+'44">'
-      +esc(a.src)+'<br><span class="bias">'+a.bias+' '+fmt(a.date)+'</span></span>'
+      +esc(a.src)+'<br><span class="bias">'+esc(a.bias)+' '+fmt(a.date)+'</span></span>'
       +'<span class="body"><span class="ttl">'+esc(a.title)+'</span>'
-      +(hit?'<span class="kw">!! '+esc(a.kws.join(', '))+'</span>':'')
+      +(hit&&kws.length?'<span class="kw">!! '+esc(kws.join(', '))+'</span>':'')
       +'</span></a>';
   });
   feed.innerHTML=html;
-  document.getElementById('ts').textContent='@Zlatti_71 - '+new Date().toLocaleTimeString();
+  document.getElementById('ts').textContent='@Zlatti_71 - '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+}
+function decode(str){
+  // Fix base64 padding and URL encoding
+  try{
+    // First try: direct atob
+    var b64=str.replace(/-/g,'+').replace(/_/g,'/');
+    while(b64.length%4){b64+='=';}
+    return atob(b64);
+  }catch(e){
+    try{
+      // Second try: URL decode first
+      var decoded=decodeURIComponent(str);
+      var b64=decoded.replace(/-/g,'+').replace(/_/g,'/');
+      while(b64.length%4){b64+='=';}
+      return atob(b64);
+    }catch(e2){
+      return null;
+    }
+  }
 }
 try{
-  var hash=location.hash.replace('#','');
-  if(hash){
-    var json=decodeURIComponent(atob(hash));
-    render(JSON.parse(json));
+  var hash=window.location.hash;
+  if(hash&&hash.length>1){
+    var raw=hash.substring(1);
+    var json=decode(raw);
+    if(json){
+      var arts=JSON.parse(json);
+      render(arts);
+    } else {
+      document.getElementById('feed').innerHTML='<div class="empty">Could not decode data.</div>';
+    }
   } else {
     document.getElementById('feed').innerHTML='<div class="empty">No data. Open via widget.</div>';
   }
 }catch(e){
-  document.getElementById('feed').innerHTML='<div class="empty">Error loading articles.</div>';
+  document.getElementById('feed').innerHTML='<div class="empty">Error: '+esc(e.message)+'</div>';
 }
 </script>
 </body>
