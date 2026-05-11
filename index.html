@@ -35,6 +35,14 @@ function esc(s){
   if(!s)return'';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+function fixEncoding(str){
+  // Fix double-encoded UTF-8 (latin1 misread as UTF-8)
+  try{
+    return decodeURIComponent(escape(str));
+  }catch(e){
+    return str;
+  }
+}
 function render(arts){
   var feed=document.getElementById('feed');
   if(!arts||!arts.length){feed.innerHTML='<div class="empty">No articles.</div>';return;}
@@ -43,51 +51,46 @@ function render(arts){
     var col=BC[a.bias]||'#888';
     var hit=!!a.hit;
     var kws=a.kws&&a.kws.length?a.kws:[];
-    html+='<a class="item'+(hit?' hit':'')+'" href="'+esc(a.link)+'" target="_blank">'
+    var title=esc(a.title||'');
+    html+='<a class="item'+(hit?' hit':'')+'" href="'+esc(a.link||'')+'" target="_blank">'
       +'<span class="badge" style="color:'+col+';border-color:'+col+'44">'
-      +esc(a.src)+'<br><span class="bias">'+esc(a.bias)+' '+fmt(a.date)+'</span></span>'
-      +'<span class="body"><span class="ttl">'+esc(a.title)+'</span>'
+      +esc(a.src||'')+'<br><span class="bias">'+esc(a.bias||'')+' '+fmt(a.date)+'</span></span>'
+      +'<span class="body"><span class="ttl">'+title+'</span>'
       +(hit&&kws.length?'<span class="kw">!! '+esc(kws.join(', '))+'</span>':'')
       +'</span></a>';
   });
   feed.innerHTML=html;
   document.getElementById('ts').textContent='@Zlatti_71 - '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
 }
-function decode(str){
-  // Fix base64 padding and URL encoding
+function b64decode(str){
+  // Decode base64 to UTF-8 string properly
+  var b64=str.replace(/-/g,'+').replace(/_/g,'/');
+  while(b64.length%4){b64+='=';}
+  // Use TextDecoder for proper UTF-8 handling
   try{
-    // First try: direct atob
-    var b64=str.replace(/-/g,'+').replace(/_/g,'/');
-    while(b64.length%4){b64+='=';}
-    return atob(b64);
+    var binary=atob(b64);
+    var bytes=new Uint8Array(binary.length);
+    for(var i=0;i<binary.length;i++){bytes[i]=binary.charCodeAt(i);}
+    return new TextDecoder('utf-8').decode(bytes);
   }catch(e){
-    try{
-      // Second try: URL decode first
-      var decoded=decodeURIComponent(str);
-      var b64=decoded.replace(/-/g,'+').replace(/_/g,'/');
-      while(b64.length%4){b64+='=';}
-      return atob(b64);
-    }catch(e2){
-      return null;
-    }
+    // Fallback
+    return decodeURIComponent(escape(atob(b64)));
   }
 }
 try{
   var hash=window.location.hash;
   if(hash&&hash.length>1){
     var raw=hash.substring(1);
-    var json=decode(raw);
-    if(json){
-      var arts=JSON.parse(json);
-      render(arts);
-    } else {
-      document.getElementById('feed').innerHTML='<div class="empty">Could not decode data.</div>';
-    }
+    // Handle URL encoding of the hash
+    try{raw=decodeURIComponent(raw);}catch(e){}
+    var json=b64decode(raw);
+    var arts=JSON.parse(json);
+    render(arts);
   } else {
     document.getElementById('feed').innerHTML='<div class="empty">No data. Open via widget.</div>';
   }
 }catch(e){
-  document.getElementById('feed').innerHTML='<div class="empty">Error: '+esc(e.message)+'</div>';
+  document.getElementById('feed').innerHTML='<div class="empty">Error: '+esc(String(e.message||e))+'</div>';
 }
 </script>
 </body>
