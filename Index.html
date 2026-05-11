@@ -1,64 +1,35 @@
 <!DOCTYPE html>
+
 <html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Zlatti News</title>
+<title>Z71 News Widget</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#0e0e0e;font-family:-apple-system,sans-serif;padding-bottom:3rem}
-header{background:#111;border-bottom:1px solid rgba(255,255,255,.08);padding:14px 16px;position:sticky;top:0;z-index:9;display:flex;align-items:center;justify-content:space-between}
-header h1{font-size:13px;font-weight:700;letter-spacing:.08em;color:#c8f135}
-header p{font-size:10px;color:#444}
-.item{display:flex;gap:12px;padding:15px 16px;border-bottom:1px solid rgba(255,255,255,.07);text-decoration:none;align-items:flex-start}
-.item:active{background:#161616}
-.item.hit{border-left:3px solid #c8f135;padding-left:13px}
-.badge{font-size:10px;font-family:monospace;border:1px solid;border-radius:3px;padding:4px 7px;flex-shrink:0;min-width:54px;text-align:center;line-height:1.5}
-.bias{font-size:8px;opacity:.55}
-.body{display:flex;flex-direction:column;gap:5px;min-width:0}
-.ttl{font-size:15px;color:#e2e2e2;line-height:1.45}
-.kw{font-size:11px;color:#c8f135;font-weight:600}
-.empty{padding:3rem 1rem;text-align:center;color:#444;font-size:14px}
-.loading{padding:3rem 1rem;text-align:center;color:#555;font-size:13px}
+html,body{margin:0;padding:0;background:#000;height:100%}
+#ta{position:fixed;top:0;left:0;right:0;bottom:60px;width:100%;background:#0a0a0a;color:#c8f135;font-family:monospace;font-size:11px;padding:1rem;border:none;outline:none;resize:none;-webkit-user-select:all;user-select:all}
+#btn{position:fixed;bottom:0;left:0;right:0;height:60px;background:#c8f135;color:#000;border:none;font-size:16px;font-weight:bold;font-family:monospace;cursor:pointer;letter-spacing:.06em}
+#ok{position:fixed;bottom:0;left:0;right:0;height:60px;background:#4ade80;color:#000;font-size:15px;font-weight:bold;font-family:monospace;display:none;align-items:center;justify-content:center;text-align:center;padding:0 1rem}
 </style>
 </head>
 <body>
-<header><h1>ZLATTI NEWS</h1><p id="ts">@Zlatti_71</p></header>
-<div id="feed"><div class="loading">Loading...</div></div>
+<textarea id="ta" readonly></textarea>
+<button id="btn" onclick="go()">TAP TO COPY WIDGET CODE</button>
+<div id="ok">COPIED - open Scriptable, paste, run</div>
 <script>
-var BC = {L:'#4ade80',ML:'#60a5fa',C:'#9ca3af',MR:'#fb923c',R:'#f87171',ST:'#c084fc'};
-function fmt(d){
-  if(!d)return'';
-  try{var dt=new Date(d);return('0'+dt.getHours()).slice(-2)+':'+('0'+dt.getMinutes()).slice(-2);}catch(e){return'';}
+var C="// ZLATTI NEWS WIDGET - @Zlatti_71 - v12\n// Tap = opens GitHub Pages reader with articles passed in URL hash\n\n// IMPORTANT: set your GitHub Pages URL here after setup\nvar READER_URL = 'https://zlatti71.github.io/Z71-Global-News-Feed/';\n\nvar WATCHLIST = ['Trump', 'China', 'Iran', 'Ukraine', 'Taiwan', 'Gaza', 'NATO', 'Putin', 'Xi'];\nvar WATCHLIST_ONLY = false;\n\nvar SOURCES = [\n  { name: 'BBC',      rss: 'https://feeds.bbci.co.uk/news/world/rss.xml',          bias: 'ML', col: '60A5FA' },\n  { name: 'Reuters',  rss: 'https://feeds.reuters.com/reuters/topNews',             bias: 'C',  col: '9CA3AF' },\n  { name: 'Guardian', rss: 'https://www.theguardian.com/world/rss',                 bias: 'L',  col: '4ADE80' },\n  { name: 'Spiegel',  rss: 'https://www.spiegel.de/schlagzeilen/tops/index.rss',    bias: 'ML', col: '60A5FA' },\n  { name: 'Welt',     rss: 'https://www.welt.de/feeds/latest.rss',                  bias: 'MR', col: 'FB923C' },\n  { name: 'Fox',      rss: 'https://moxie.foxnews.com/google-publisher/latest.xml', bias: 'R',  col: 'F87171' },\n  { name: 'TASS',     rss: 'https://tass.com/rss/v2.xml',                           bias: 'ST', col: 'C084FC' },\n  { name: 'AJazeera', rss: 'https://www.aljazeera.com/xml/rss/all.xml',             bias: 'L',  col: '4ADE80' },\n];\n\nvar BG     = new Color('#0e0e0e');\nvar TEXT   = new Color('#e2e2e2');\nvar TEXT2  = new Color('#888888');\nvar TEXT3  = new Color('#3a3a3a');\nvar ACCENT = new Color('#c8f135');\n\nfunction hexCol(h)    { return new Color('#' + h); }\nfunction hexColA(h,a) { return new Color('#' + h, a); }\n\nfunction parseRSS(xml) {\n  var items = [];\n  var itemRx  = /<item[\\s\\S]*?<\\/item>/gi;\n  var titleRx = /<title[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/title>|<title[^>]*>([\\s\\S]*?)<\\/title>/i;\n  var dateRx  = /<pubDate[^>]*>([\\s\\S]*?)<\\/pubDate>/i;\n  var guidRx  = /<guid[^>]*>([\\s\\S]*?)<\\/guid>/i;\n  var match;\n  while ((match = itemRx.exec(xml)) !== null) {\n    var chunk = match[0];\n    var tm = titleRx.exec(chunk);\n    var title = tm ? (tm[1] || tm[2] || '').trim() : '';\n    var link = '';\n    var lh = /<link[^>]*href=\"([^\"]+)\"/i.exec(chunk);\n    if (lh) { link = lh[1].trim(); }\n    else {\n      var lt = /<link>([\\s\\S]*?)<\\/link>/i.exec(chunk);\n      if (lt) link = lt[1].trim();\n    }\n    if (!link) {\n      var gm = guidRx.exec(chunk);\n      if (gm && gm[1].indexOf('http') === 0) link = gm[1].trim();\n    }\n    var dm = dateRx.exec(chunk);\n    var date = dm ? dm[1].trim() : '';\n    title = title\n      .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')\n      .replace(/&quot;/g,'\"').replace(/&#39;/g,\"'\").replace(/&apos;/g,\"'\")\n      .replace(/<[^>]*>/g,'').trim();\n    if (title && link) items.push({ title:title, link:link, date:date });\n    if (items.length >= 6) break;\n  }\n  return items;\n}\n\nfunction matchKW(title) {\n  var t = title.toLowerCase();\n  return WATCHLIST.filter(function(k){ return t.indexOf(k.toLowerCase()) > -1; });\n}\n\nfunction fmtTime(d) {\n  if (!d) return '';\n  try {\n    var dt = new Date(d);\n    if (isNaN(dt.getTime())) return '';\n    return ('0'+dt.getHours()).slice(-2)+':'+('0'+dt.getMinutes()).slice(-2);\n  } catch(e) { return ''; }\n}\n\nasync function fetchFeed(src) {\n  try {\n    var req = new Request(src.rss);\n    req.timeoutInterval = 12;\n    var xml = await req.loadString();\n    return parseRSS(xml).map(function(it) {\n      var kws = matchKW(it.title);\n      return { title:it.title, link:it.link, date:it.date,\n               src:src.name, bias:src.bias, col:src.col,\n               hit:kws.length>0, kws:kws };\n    });\n  } catch(e) { return []; }\n}\n\nasync function buildWidget(size) {\n  var results = await Promise.all(SOURCES.map(fetchFeed));\n  var articles = [];\n  results.forEach(function(arr){ arr.forEach(function(a){ articles.push(a); }); });\n  articles.sort(function(a,b){ return new Date(b.date)-new Date(a.date); });\n  if (WATCHLIST_ONLY) {\n    articles = articles.filter(function(a){ return a.hit; });\n  }\n\n  // Encode top 30 articles into URL hash for reader page\n  var payload = articles.slice(0, 30).map(function(a) {\n    return { title:a.title, link:a.link, date:a.date,\n             src:a.src, bias:a.bias, hit:a.hit, kws:a.kws };\n  });\n  var json    = JSON.stringify(payload);\n  var b64     = Data.fromString(json).toBase64String();\n  var encoded = encodeURIComponent(b64);\n  var tapURL  = READER_URL + '#' + encoded;\n\n  var limit  = size === 'large' ? 7 : size === 'medium' ? 4 : 2;\n  var toShow = articles.slice(0, limit);\n\n  var w = new ListWidget();\n  w.backgroundColor = BG;\n  w.setPadding(12, 13, 10, 13);\n  w.url = tapURL;\n  w.refreshAfterDate = new Date(Date.now() + 30 * 60 * 1000);\n\n  var hdr = w.addStack();\n  hdr.layoutHorizontally();\n  hdr.centerAlignContent();\n  var lbl = hdr.addText('ZLATTI NEWS');\n  lbl.font = new Font('Courier-Bold', 12);\n  lbl.textColor = ACCENT;\n  hdr.addSpacer();\n  var now = new Date();\n  var ts  = ('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);\n  var tsT = hdr.addText(ts);\n  tsT.font = new Font('Courier', 9);\n  tsT.textColor = TEXT3;\n\n  w.addSpacer(7);\n\n  if (!toShow.length) {\n    var msg = w.addText('No feed loaded.');\n    msg.font = Font.systemFont(13);\n    msg.textColor = TEXT2;\n    return w;\n  }\n\n  for (var i = 0; i < toShow.length; i++) {\n    var a = toShow[i];\n    var row = w.addStack();\n    row.layoutHorizontally();\n    row.spacing = 8;\n\n    var bdg = row.addStack();\n    bdg.layoutVertically();\n    bdg.size = new Size(44, 0);\n    var sn = bdg.addText(a.src);\n    sn.font = new Font('Courier-Bold', 10);\n    sn.textColor = hexCol(a.col);\n    sn.lineLimit = 1;\n    var mt = bdg.addText(a.bias+' '+fmtTime(a.date));\n    mt.font = new Font('Courier', 7);\n    mt.textColor = TEXT3;\n\n    var bod = row.addStack();\n    bod.layoutVertically();\n    var ht = bod.addText((a.hit ? '!! ' : '') + a.title);\n    ht.font = a.hit ? Font.boldSystemFont(13) : Font.systemFont(13);\n    ht.textColor = a.hit ? ACCENT : TEXT;\n    ht.lineLimit = 2;\n\n    if (i < toShow.length - 1) {\n      w.addSpacer(5);\n      var sep = w.addText('- - - - - - - - - - - - - - - - - - - - -');\n      sep.font = new Font('Courier', 5);\n      sep.textColor = hexColA('ffffff', 0.07);\n      w.addSpacer(5);\n    }\n  }\n\n  w.addSpacer();\n  var foot = w.addText('Tap = alle Artikel  |  @Zlatti_71');\n  foot.font = new Font('Courier', 7);\n  foot.textColor = TEXT3;\n  return w;\n}\n\nvar sz = config.widgetFamily || 'medium';\nvar widget = await buildWidget(sz);\nif (config.runsInWidget) {\n  Script.setWidget(widget);\n} else {\n  await widget.presentMedium();\n}\nScript.complete();\n";
+document.getElementById('ta').value=C;
+function go(){
+  var ta=document.getElementById('ta');
+  ta.focus();ta.select();ta.setSelectionRange(0,99999999);
+  var ok=false;
+  try{ok=document.execCommand('copy');}catch(e){}
+  if(!ok&&navigator.clipboard){navigator.clipboard.writeText(C).then(done);return;}
+  if(ok)done();
 }
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function render(arts){
-  var feed=document.getElementById('feed');
-  if(!arts||!arts.length){feed.innerHTML='<div class="empty">No articles.</div>';return;}
-  var html='';
-  arts.forEach(function(a){
-    var col=BC[a.bias]||'#888';
-    var hit=a.hit;
-    html+='<a class="item'+(hit?' hit':'')+'" href="'+a.link+'">'
-      +'<span class="badge" style="color:'+col+';border-color:'+col+'44">'
-      +esc(a.src)+'<br><span class="bias">'+a.bias+' '+fmt(a.date)+'</span></span>'
-      +'<span class="body"><span class="ttl">'+esc(a.title)+'</span>'
-      +(hit?'<span class="kw">!! '+esc(a.kws.join(', '))+'</span>':'')
-      +'</span></a>';
-  });
-  feed.innerHTML=html;
-  document.getElementById('ts').textContent='@Zlatti_71 - '+new Date().toLocaleTimeString();
-}
-try{
-  var hash=location.hash.replace('#','');
-  if(hash){
-    var json=decodeURIComponent(atob(hash));
-    render(JSON.parse(json));
-  } else {
-    document.getElementById('feed').innerHTML='<div class="empty">No data. Open via widget.</div>';
-  }
-}catch(e){
-  document.getElementById('feed').innerHTML='<div class="empty">Error loading articles.</div>';
+function done(){
+  document.getElementById('btn').style.display='none';
+  var d=document.getElementById('ok');d.style.display='flex';
 }
 </script>
 </body>
