@@ -1,68 +1,253 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Zlatti News</title>
+<title>Z71 News</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
+:root{
+  --black:#050404;--black2:#0d0b08;--black3:#161310;--black4:#1e1a14;
+  --gold:#c9912a;--gold2:#e4b44a;--gold3:#f0cc6e;--gold4:#f8e4a8;
+  --gold-dim:#7a5718;--gold-faint:rgba(201,145,42,0.12);
+  --rule:rgba(201,145,42,0.25);--rule2:rgba(201,145,42,0.45);
+  --text:#e8dcc0;--text2:#b8a478;--text3:#7a6840;
+  --red:#8b2020;--red2:#c03030;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0e0e0e;font-family:-apple-system,sans-serif;padding-bottom:3rem}
-header{background:#111;border-bottom:1px solid rgba(255,255,255,.08);padding:14px 16px;position:sticky;top:0;z-index:9;display:flex;align-items:center;justify-content:space-between}
-header h1{font-size:13px;font-weight:700;letter-spacing:.08em;color:#c8f135}
-header p{font-size:10px;color:#444}
-.item{display:flex;gap:12px;padding:15px 16px;border-bottom:1px solid rgba(255,255,255,.07);text-decoration:none;align-items:flex-start}
-.item:active{background:#161616}
-.item.hit{border-left:3px solid #c8f135;padding-left:13px}
-.badge{font-size:10px;font-family:monospace;border:1px solid;border-radius:3px;padding:4px 7px;flex-shrink:0;min-width:54px;text-align:center;line-height:1.5}
-.bias{font-size:8px;opacity:.55}
-.body{display:flex;flex-direction:column;gap:5px;min-width:0}
-.ttl{font-size:15px;color:#e2e2e2;line-height:1.45}
-.kw{font-size:11px;color:#c8f135;font-weight:600}
-.empty{padding:3rem 1rem;text-align:center;color:#444;font-size:14px}
+html{background:var(--black)}
+body{
+  font-family:'Crimson Pro',Georgia,serif;
+  background:var(--black);
+  color:var(--text);
+  min-height:100vh;
+}
+
+/* Subtle concentric ring texture */
+body::before{
+content:’’;position:fixed;inset:0;
+background:
+radial-gradient(circle at 50% 0%, rgba(201,145,42,0.04) 0%, transparent 60%),
+repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 48px, rgba(201,145,42,0.03) 49px, transparent 50px);
+pointer-events:none;z-index:0;
+}
+
+/* MASTHEAD */
+.masthead{
+position:sticky;top:0;z-index:10;
+background:var(–black);
+border-bottom:1px solid var(–rule2);
+padding:.75rem 1rem .6rem;
+}
+.masthead-ring{
+width:100%;height:2px;
+background:linear-gradient(to right, transparent, var(–gold-dim), var(–gold2), var(–gold), var(–gold2), var(–gold-dim), transparent);
+margin-bottom:.6rem;
+}
+.masthead-inner{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.masthead-logo{display:flex;align-items:center;gap:.6rem}
+.logo-emblem{
+width:38px;height:38px;
+background:radial-gradient(circle, var(–black3) 40%, var(–black) 100%);
+border:1px solid var(–gold-dim);
+border-radius:50%;
+display:flex;align-items:center;justify-content:center;
+position:relative;flex-shrink:0;
+}
+.logo-emblem::before{
+content:’’;position:absolute;inset:3px;
+border:1px solid rgba(201,145,42,0.2);
+border-radius:50%;
+}
+.logo-z{font-family:‘Cinzel’,serif;font-size:1.1rem;font-weight:900;color:var(–gold2);line-height:1}
+.logo-text{display:flex;flex-direction:column;gap:1px}
+.logo-title{font-family:‘Cinzel’,serif;font-size:.85rem;font-weight:600;color:var(–gold3);letter-spacing:.12em}
+.logo-sub{font-family:‘Share Tech Mono’,monospace;font-size:7px;color:var(–text3);letter-spacing:.14em;text-transform:uppercase}
+.masthead-meta{font-family:‘Share Tech Mono’,monospace;font-size:8px;color:var(–text3);letter-spacing:.1em;text-align:right}
+.masthead-ring-bottom{
+width:100%;height:1px;
+background:linear-gradient(to right, transparent, var(–rule), var(–gold-dim), var(–rule), transparent);
+margin-top:.6rem;
+}
+
+/* BIAS BAR */
+.bias-bar{
+display:flex;background:var(–black2);
+border-bottom:1px solid var(–rule);
+overflow-x:auto;
+}
+.bias-item{
+flex:1;min-width:0;padding:.35rem .4rem;
+font-family:‘Share Tech Mono’,monospace;font-size:7px;
+letter-spacing:.08em;text-transform:uppercase;
+text-align:center;color:var(–text3);
+border-right:1px solid var(–rule);white-space:nowrap;
+}
+.bias-item:last-child{border-right:none}
+.bdot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:3px;vertical-align:middle}
+
+/* FEED */
+.feed{max-width:620px;margin:0 auto;padding:.5rem 1rem 4rem;position:relative;z-index:1}
+
+/* ARTICLE */
+.item{
+display:grid;grid-template-columns:52px 1fr;
+border-bottom:1px solid var(–rule);
+text-decoration:none;color:inherit;
+padding:.8rem 0;
+transition:background .12s;
+position:relative;
+}
+.item:active{background:var(–gold-faint)}
+.item.hit{background:rgba(139,32,32,0.06)}
+.item.hit::before{content:’’;position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(–red2),var(–red))}
+
+/* BADGE */
+.item-badge{
+display:flex;flex-direction:column;align-items:center;
+padding-top:.1rem;gap:2px;
+}
+.badge-src{
+font-family:‘Share Tech Mono’,monospace;font-size:8px;
+padding:2px 4px;border:1px solid;border-radius:1px;
+text-align:center;line-height:1.3;letter-spacing:.04em;
+text-transform:uppercase;
+}
+.badge-bias{font-family:‘Share Tech Mono’,monospace;font-size:7px;color:var(–text3);letter-spacing:.06em}
+.badge-time{font-family:‘Share Tech Mono’,monospace;font-size:7px;color:var(–gold-dim)}
+
+/* CONTENT */
+.item-body{padding-left:.75rem;border-left:1px solid var(–rule)}
+.item-source-line{
+font-family:‘Share Tech Mono’,monospace;font-size:7px;
+letter-spacing:.1em;text-transform:uppercase;color:var(–text3);
+margin-bottom:.3rem;
+}
+.item-headline{
+font-family:‘Crimson Pro’,Georgia,serif;
+font-size:1.05rem;font-weight:600;
+color:var(–text);line-height:1.35;
+}
+.item.hit .item-headline{color:var(–gold3)}
+.item-kw{
+margin-top:.3rem;
+font-family:‘Share Tech Mono’,monospace;font-size:8px;
+color:var(–red2);letter-spacing:.08em;
+}
+
+/* SECTION BREAK */
+.section-break{
+text-align:center;padding:.4rem 0;
+font-family:‘Share Tech Mono’,monospace;font-size:8px;
+color:var(–gold-dim);letter-spacing:.3em;
+border-bottom:1px solid var(–rule);
+}
+
+/* FOOT */
+.foot{
+text-align:center;padding:1.25rem 1rem;
+font-family:‘Share Tech Mono’,monospace;font-size:8px;
+color:var(–text3);letter-spacing:.12em;
+border-top:1px solid var(–rule2);
+position:relative;z-index:1;
+}
+.foot-rule{
+width:60%;margin:0 auto .5rem;height:1px;
+background:linear-gradient(to right,transparent,var(–gold-dim),transparent);
+}
 </style>
+
 </head>
 <body>
-<header><h1>ZLATTI NEWS</h1><p id="ts">@Zlatti_71</p></header>
-<div id="feed"><div class="empty">Loading...</div></div>
+
+<div class="masthead">
+  <div class="masthead-ring"></div>
+  <div class="masthead-inner">
+    <div class="masthead-logo">
+      <div class="logo-emblem"><span class="logo-z">Z</span></div>
+      <div class="logo-text">
+        <div class="logo-title">Z71 NEWS</div>
+        <div class="logo-sub">Global Intelligence Feed</div>
+      </div>
+    </div>
+    <div class="masthead-meta" id="ts">@Zlatti_71</div>
+  </div>
+  <div class="masthead-ring-bottom"></div>
+</div>
+
+<div class="bias-bar">
+  <div class="bias-item"><span class="bdot" style="background:#3a7a3a"></span>Links</div>
+  <div class="bias-item"><span class="bdot" style="background:#2a5aaa"></span>M-Links</div>
+  <div class="bias-item"><span class="bdot" style="background:#666"></span>Mitte</div>
+  <div class="bias-item"><span class="bdot" style="background:#a86000"></span>M-Rechts</div>
+  <div class="bias-item"><span class="bdot" style="background:#8b2020"></span>Rechts</div>
+  <div class="bias-item"><span class="bdot" style="background:#6a3aaa"></span>Staatl.</div>
+</div>
+
+<div class="feed" id="feed">
+  <div style="padding:3rem 0;text-align:center;font-style:italic;color:var(--text3)">Loading&hellip;</div>
+</div>
+
+<div class="foot">
+  <div class="foot-rule"></div>
+  Z71 GLOBAL NEWS FEED &mdash; FRAMING DIFFERS BY OUTLET &mdash; DRAW YOUR OWN CONCLUSIONS
+</div>
+
 <script>
-var BC={L:'#4ade80',ML:'#60a5fa',C:'#9ca3af',MR:'#fb923c',R:'#f87171',ST:'#c084fc'};
+var BC={
+  L:{col:'#3a7a3a',label:'Links'},
+  ML:{col:'#2a5aaa',label:'M-Links'},
+  C:{col:'#666666',label:'Mitte'},
+  MR:{col:'#a86000',label:'M-Rechts'},
+  R:{col:'#8b2020',label:'Rechts'},
+  ST:{col:'#6a3aaa',label:'Staatl.'}
+};
 function fmt(d){if(!d)return'';try{var dt=new Date(d);if(isNaN(dt))return'';return('0'+dt.getHours()).slice(-2)+':'+('0'+dt.getMinutes()).slice(-2);}catch(e){return'';}}
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function render(arts){
   var feed=document.getElementById('feed');
-  if(!arts||!arts.length){feed.innerHTML='<div class="empty">No articles.</div>';return;}
+  if(!arts||!arts.length){feed.innerHTML='<div style="padding:3rem 0;text-align:center;font-style:italic;color:#7a6840">No articles.</div>';return;}
   var html='';
-  arts.forEach(function(a){
-    var col=BC[a.bias]||'#888';
+  arts.forEach(function(a,i){
+    var bc=BC[a.bias]||{col:'#888',label:a.bias||''};
     var hit=!!a.hit;
     var kws=a.kws&&a.kws.length?a.kws:[];
+    if(i>0&&i%8===0){html+='<div class="section-break">&#9670; &#9670; &#9670;</div>';}
     html+='<a class="item'+(hit?' hit':'')+'" href="'+esc(a.link||'')+'" target="_blank">'
-      +'<span class="badge" style="color:'+col+';border-color:'+col+'44">'
-      +esc(a.src||'')+'<br><span class="bias">'+esc(a.bias||'')+' '+fmt(a.date)+'</span></span>'
-      +'<span class="body"><span class="ttl">'+esc(a.title||'')+'</span>'
-      +(hit&&kws.length?'<span class="kw">!! '+esc(kws.join(', '))+'</span>':'')
-      +'</span></a>';
+      +'<div class="item-badge">'
+      +'<span class="badge-src" style="color:'+bc.col+';border-color:'+bc.col+'44">'+esc(a.src||'')+'</span>'
+      +'<span class="badge-bias">'+esc(bc.label)+'</span>'
+      +'<span class="badge-time">'+fmt(a.date)+'</span>'
+      +'</div>'
+      +'<div class="item-body">'
+      +'<div class="item-source-line">'+esc(a.src||'')+' &middot; '+esc(bc.label)+'</div>'
+      +'<div class="item-headline">'+esc(a.title||'')+'</div>'
+      +(hit&&kws.length?'<div class="item-kw">&#9654; '+esc(kws.join(' &middot; '))+'</div>':'')
+      +'</div></a>';
   });
   feed.innerHTML=html;
-  document.getElementById('ts').textContent='@Zlatti_71 - '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  var now=new Date();
+  document.getElementById('ts').textContent=
+    now.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'short'})
+    +' '+('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);
 }
 try{
   var hash=window.location.hash;
   if(hash&&hash.length>1){
     var raw=hash.substring(1);
-    // Decode: base64 -> URI-encoded JSON -> JSON
     var b64=raw.replace(/-/g,'+').replace(/_/g,'/');
     while(b64.length%4){b64+='=';}
     var uriJson=atob(b64);
     var json=decodeURIComponent(uriJson);
     render(JSON.parse(json));
   } else {
-    document.getElementById('feed').innerHTML='<div class="empty">No data. Open via widget.</div>';
+    document.getElementById('feed').innerHTML='<div style="padding:3rem 0;text-align:center;font-style:italic;color:#7a6840">No data. Open via widget.</div>';
   }
 }catch(e){
-  document.getElementById('feed').innerHTML='<div class="empty">Error: '+esc(String(e.message||e))+'</div>';
+  document.getElementById('feed').innerHTML='<div style="padding:3rem 0;text-align:center;color:#8b2020">Error: '+esc(String(e.message||e))+'</div>';
 }
 </script>
+
 </body>
 </html>
