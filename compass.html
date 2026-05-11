@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Z71 Media Compass</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#050404;--black2:#0d0b08;--black3:#161310;--black4:#1e1a14;--black5:#242018;
+  --gold:#c9912a;--gold2:#e4b44a;--gold3:#f0cc6e;--gold4:#f8e4a8;
+  --gold-dim:#7a5718;--gold-faint:rgba(201,145,42,0.1);--gold-faint2:rgba(201,145,42,0.06);
+  --rule:rgba(201,145,42,0.2);--rule2:rgba(201,145,42,0.4);
+  --text:#e8dcc0;--text2:#b8a478;--text3:#7a6840;--text4:#4a3e28;
+  --red:#8b2020;
+  --L:#3a7a3a;--ML:#2a5aaa;--C:#666;--MR:#a86000;--R:#8b2020;--ST:#6a3aaa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--black);color:var(--text);font-family:'Crimson Pro',Georgia,serif;min-height:100vh}
+
+body::before{
+content:’’;position:fixed;inset:0;
+background:
+radial-gradient(circle at 50% 0%,rgba(201,145,42,0.05) 0%,transparent 55%),
+repeating-radial-gradient(circle at 50% 50%,transparent 0,transparent 60px,rgba(201,145,42,0.025) 61px,transparent 62px);
+pointer-events:none;z-index:0;
+}
+
+/* HEADER */
+.header{
+position:sticky;top:0;z-index:20;
+background:var(–black);
+border-bottom:1px solid var(–rule2);
+padding:.7rem 1.5rem .6rem;
+}
+.header-ring{height:2px;background:linear-gradient(to right,transparent,var(–gold-dim),var(–gold2),var(–gold),var(–gold2),var(–gold-dim),transparent);margin-bottom:.6rem}
+.header-inner{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:.75rem}
+.emblem{
+width:44px;height:44px;
+border-radius:50%;
+background:radial-gradient(circle,var(–black3) 35%,var(–black) 100%);
+border:1px solid var(–gold-dim);
+display:flex;align-items:center;justify-content:center;
+position:relative;flex-shrink:0;
+}
+.emblem::before{content:’’;position:absolute;inset:4px;border:1px solid rgba(201,145,42,0.18);border-radius:50%}
+.emblem::after{content:’’;position:absolute;inset:8px;border:1px solid rgba(201,145,42,0.08);border-radius:50%}
+.emblem-z{font-family:‘Cinzel’,serif;font-size:1.15rem;font-weight:900;color:var(–gold2)}
+.brand-text h1{font-family:‘Cinzel’,serif;font-size:.95rem;font-weight:600;color:var(–gold3);letter-spacing:.14em}
+.brand-text p{font-family:‘Share Tech Mono’,monospace;font-size:7px;color:var(–text3);letter-spacing:.14em;margin-top:1px}
+.header-actions{display:flex;gap:.5rem;align-items:center}
+.hbtn{font-family:‘Share Tech Mono’,monospace;font-size:9px;letter-spacing:.08em;padding:5px 12px;border:1px solid var(–rule2);background:transparent;color:var(–text2);cursor:pointer;transition:all .13s}
+.hbtn:hover{border-color:var(–gold);color:var(–gold3);background:var(–gold-faint)}
+.hbtn.on{background:var(–gold-faint2);border-color:var(–gold2);color:var(–gold3)}
+.header-ring-b{height:1px;background:linear-gradient(to right,transparent,var(–rule),var(–gold-dim),var(–rule),transparent);margin-top:.6rem}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 90px);position:relative;z-index:1}
+.sidebar{border-right:1px solid var(–rule);padding:1.25rem 1rem;background:var(–black2)}
+.main{padding:1.25rem 1.5rem}
+
+/* SIDEBAR */
+.s-label{font-family:‘Share Tech Mono’,monospace;font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(–gold-dim);border-bottom:1px solid var(–rule);padding-bottom:.35rem;margin-bottom:.6rem;margin-top:1.25rem}
+.s-label:first-child{margin-top:0}
+.rfbtn{display:block;width:100%;text-align:left;padding:.4rem .6rem;font-family:‘Share Tech Mono’,monospace;font-size:9px;letter-spacing:.06em;background:transparent;border:1px solid transparent;color:var(–text3);cursor:pointer;transition:all .13s;margin-bottom:2px}
+.rfbtn:hover{background:var(–gold-faint);color:var(–text2);border-color:var(–rule)}
+.rfbtn.on{background:var(–gold-faint2);color:var(–gold3);border-color:var(–gold-dim)}
+.kw-row{display:flex;gap:.35rem;margin-bottom:.5rem}
+.kw-in{flex:1;background:var(–black3);border:1px solid var(–rule);color:var(–text);font-family:‘Share Tech Mono’,monospace;font-size:9px;padding:5px 7px;outline:none}
+.kw-in:focus{border-color:var(–gold)}
+.kw-add{font-family:‘Share Tech Mono’,monospace;font-size:10px;font-weight:500;padding:5px 9px;border:1px solid var(–gold-dim);background:transparent;color:var(–gold2);cursor:pointer;transition:all .13s}
+.kw-add:hover{background:var(–gold-faint);border-color:var(–gold)}
+.kw-tags{display:flex;flex-wrap:wrap;gap:.25rem}
+.kw-tag{font-family:‘Share Tech Mono’,monospace;font-size:8px;padding:2px 7px;border:1px solid var(–gold-dim);color:var(–gold2);display:flex;align-items:center;gap:4px;background:var(–gold-faint2)}
+.kw-tag button{background:none;border:none;color:var(–gold-dim);cursor:pointer;font-size:9px;padding:0;line-height:1}
+.kw-tag button:hover{color:var(–red)}
+
+/* SPECTRUM */
+.spec-track{height:4px;background:linear-gradient(to right,var(–L),var(–ML),var(–C),var(–MR),var(–R));margin-bottom:.35rem;border-radius:1px}
+.spec-labels{display:flex;justify-content:space-between;font-family:‘Share Tech Mono’,monospace;font-size:7px;color:var(–text4);letter-spacing:.06em;margin-bottom:1rem}
+
+/* COLUMNS */
+.col-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.75rem}
+.col-head{font-family:‘Cinzel’,serif;font-size:.65rem;font-weight:600;letter-spacing:.08em;padding-bottom:.35rem;margin-bottom:.6rem;text-align:center;border-bottom:2px solid}
+.hL{color:var(–L);border-color:var(–L)}
+.hML{color:var(–ML);border-color:var(–ML)}
+.hC{color:var(–C);border-color:var(–C)}
+.hMR{color:var(–MR);border-color:var(–MR)}
+.hR{color:var(–R);border-color:var(–R)}
+
+/* SOURCE CARD */
+.sc{border:1px solid var(–rule);background:var(–black2);padding:.5rem .6rem;margin-bottom:.4rem;cursor:pointer;transition:all .13s;position:relative}
+.sc:hover{border-color:var(–gold-dim);background:var(–black3)}
+.sc.active{border-color:var(–gold);box-shadow:0 0 8px rgba(201,145,42,0.15)}
+.sc-name{font-family:‘Crimson Pro’,serif;font-size:.85rem;font-weight:600;color:var(–text);line-height:1.2}
+.sc-lang{font-family:‘Share Tech Mono’,monospace;font-size:7px;color:var(–text4);margin-top:1px;letter-spacing:.06em}
+.sc-tag{display:inline-block;font-family:‘Share Tech Mono’,monospace;font-size:7px;padding:1px 5px;margin-top:.25rem;letter-spacing:.05em;border:1px solid}
+.t-west{color:var(–ML);border-color:rgba(42,90,170,0.3)}
+.t-russia{color:var(–ST);border-color:rgba(106,58,170,0.3)}
+.t-china{color:var(–R);border-color:rgba(139,32,32,0.3)}
+.t-mideast{color:var(–MR);border-color:rgba(168,96,0,0.3)}
+.t-global{color:var(–L);border-color:rgba(58,122,58,0.3)}
+
+/* DETAIL */
+.detail{display:none;border:1px solid var(–gold-dim);background:var(–black3);padding:1rem 1.25rem;margin-bottom:1rem;position:relative}
+.detail::before{content:’’;position:absolute;top:-1px;left:20px;right:20px;height:1px;background:linear-gradient(to right,transparent,var(–gold2),transparent)}
+.detail.vis{display:block}
+.detail-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:.5rem}
+.detail-name{font-family:‘Cinzel’,serif;font-size:1rem;font-weight:600;color:var(–gold3);letter-spacing:.06em}
+.d-btns{display:flex;gap:.35rem}
+.d-btn{font-family:‘Share Tech Mono’,monospace;font-size:8px;letter-spacing:.08em;padding:4px 10px;border:1px solid var(–rule2);background:transparent;color:var(–text2);cursor:pointer;transition:all .13s}
+.d-btn:hover{border-color:var(–gold);color:var(–gold3);background:var(–gold-faint)}
+.d-btn.primary{border-color:var(–ML);color:#6090dd}
+.detail-info{font-size:.9rem;color:var(–text2);line-height:1.65;font-style:italic;margin-bottom:.5rem}
+.detail-warn{padding:.4rem .75rem;border-left:2px solid var(–red);font-family:‘Share Tech Mono’,monospace;font-size:8px;color:var(–red);background:rgba(139,32,32,0.08);letter-spacing:.04em}
+.news-area{margin-top:.75rem;border-top:1px solid var(–rule);padding-top:.75rem;display:none}
+.news-list{list-style:none}
+.news-list li{padding:.5rem 0;border-bottom:1px solid var(–rule)}
+.news-list li:last-child{border-bottom:none}
+.news-list a{font-family:‘Crimson Pro’,serif;font-size:.9rem;color:var(–text);text-decoration:none;line-height:1.4;display:block;font-weight:600}
+.news-list a:hover{color:var(–gold3)}
+.news-date{font-family:‘Share Tech Mono’,monospace;font-size:7px;color:var(–text4);margin-top:2px}
+.news-status{font-family:‘Share Tech Mono’,monospace;font-size:8px;color:var(–text3);padding:.3rem 0}
+
+/* NEWSFLASH */
+.nf-ov{display:none;position:fixed;inset:0;background:rgba(5,4,4,0.88);z-index:100;align-items:center;justify-content:center;padding:1rem}
+.nf-ov.vis{display:flex}
+.nf-box{background:var(–black2);border:1px solid var(–gold);box-shadow:0 0 40px rgba(201,145,42,0.15),0 0 0 1px rgba(201,145,42,0.05);width:100%;max-width:700px;max-height:88vh;display:flex;flex-direction:column}
+.nf-hdr{padding:.85rem 1.25rem;border-bottom:1px solid var(–gold-dim);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(–black3)}
+.nf-hdr::before{content:’’;position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(to right,transparent,var(–gold2),transparent)}
+.nf-title{font-family:‘Cinzel’,serif;font-size:.95rem;font-weight:600;color:var(–gold3);letter-spacing:.1em;position:relative}
+.nf-close{font-family:‘Share Tech Mono’,monospace;font-size:9px;color:var(–text3);cursor:pointer;background:none;border:none;letter-spacing:.1em;transition:color .13s}
+.nf-close:hover{color:var(–gold3)}
+.nf-feeds{display:flex;gap:.35rem;padding:.6rem 1.25rem;border-bottom:1px solid var(–rule);flex-wrap:wrap;flex-shrink:0;background:var(–black2)}
+.nff{font-family:‘Share Tech Mono’,monospace;font-size:8px;letter-spacing:.06em;padding:3px 9px;border:1px solid var(–rule);background:transparent;color:var(–text3);cursor:pointer;transition:all .13s}
+.nff:hover{color:var(–text);border-color:var(–rule2)}
+.nff.on{background:var(–gold-faint2);color:var(–gold3);border-color:var(–gold-dim)}
+.nf-body{overflow-y:auto;flex:1;padding:.75rem 1.25rem}
+.nf-empty{font-family:‘Crimson Pro’,serif;font-size:.95rem;color:var(–text3);text-align:center;padding:2rem 0;font-style:italic}
+.nf-item{display:flex;gap:.75rem;padding:.75rem 0;border-bottom:1px solid var(–rule);align-items:flex-start}
+.nf-item:last-child{border-bottom:none}
+.nf-badge{font-family:‘Share Tech Mono’,monospace;font-size:8px;padding:3px 6px;border:1px solid;border-radius:1px;flex-shrink:0;min-width:46px;text-align:center;line-height:1.5}
+.nf-headline a{font-family:‘Crimson Pro’,serif;font-size:.95rem;color:var(–text);text-decoration:none;line-height:1.4;display:block;font-weight:600}
+.nf-headline a:hover{color:var(–gold3)}
+.nf-meta{font-family:‘Share Tech Mono’,monospace;font-size:7px;color:var(–text4);margin-top:3px}
+
+/* BIAS FILTER ROW */
+.bias-row{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.75rem}
+
+@media(max-width:700px){.layout{grid-template-columns:1fr}.sidebar{display:none}.col-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+
+</head>
+<body>
+
+<div class="header">
+  <div class="header-ring"></div>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="emblem"><span class="emblem-z">Z</span></div>
+      <div class="brand-text">
+        <h1>Z71 MEDIA COMPASS</h1>
+        <p>Pull the camera back &mdash; show the frame around the frame</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="hbtn" id="nfBtn">&#9670; Newsflash</button>
+    </div>
+  </div>
+  <div class="header-ring-b"></div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="s-label">Region</div>
+    <div id="regionFilters">
+      <button class="rfbtn on" data-r="all">Alle Regionen</button>
+      <button class="rfbtn" data-r="west">Westlich</button>
+      <button class="rfbtn" data-r="russia">Russisch</button>
+      <button class="rfbtn" data-r="china">Chinesisch</button>
+      <button class="rfbtn" data-r="mideast">Nahost</button>
+      <button class="rfbtn" data-r="global">Global S&uuml;d</button>
+    </div>
+    <div class="s-label">Watchlist</div>
+    <div class="kw-row">
+      <input class="kw-in" id="kwIn" placeholder="Keyword..." maxlength="30">
+      <button class="kw-add" id="kwAdd">+</button>
+    </div>
+    <div class="kw-tags" id="kwTags"></div>
+  </div>
+
+  <div class="main">
+    <div class="bias-row" id="biasRow"></div>
+    <div class="spec-track"></div>
+    <div class="spec-labels"><span>Links</span><span>Mitte-Links</span><span>Mitte</span><span>Mitte-Rechts</span><span>Rechts</span></div>
+
+```
+<div class="detail" id="dp">
+  <div class="detail-top">
+    <div class="detail-name" id="dn"></div>
+    <div class="d-btns">
+      <button class="d-btn primary" id="loadNews">Headlines</button>
+      <a class="d-btn" id="openLink" href="#" target="_blank">&#8599; Website</a>
+      <button class="d-btn" id="dcx">&#10005;</button>
+    </div>
+  </div>
+  <div class="detail-info" id="di"></div>
+  <div class="detail-warn" id="dw" style="display:none"></div>
+  <div class="news-area" id="na">
+    <div class="news-status" id="ns"></div>
+    <ul class="news-list" id="nl"></ul>
+  </div>
+</div>
+
+<div class="col-grid">
+  <div><div class="col-head hL">Links</div><div id="cL"></div></div>
+  <div><div class="col-head hML">Mitte-Links</div><div id="cML"></div></div>
+  <div><div class="col-head hC">Mitte</div><div id="cC"></div></div>
+  <div><div class="col-head hMR">Mitte-Rechts</div><div id="cMR"></div></div>
+  <div><div class="col-head hR">Rechts / Staatl.</div><div id="cR"></div></div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- NEWSFLASH -->
+
+<div class="nf-ov" id="nfOv">
+  <div class="nf-box" style="position:relative">
+    <div class="nf-hdr" style="position:relative">
+      <div class="nf-title">&#9670; NEWSFLASH &mdash; QUELLEN VERGLEICHEN</div>
+      <button class="nf-close" id="nfClose">&#10005; CLOSE</button>
+    </div>
+    <div class="nf-feeds" id="nfFeeds"></div>
+    <div class="nf-body" id="nfBody"><div class="nf-empty">Quelle ausw&auml;hlen.</div></div>
+  </div>
+</div>
+
+<script>
+var PROXY="https://api.rss2json.com/v1/api.json?rss_url=";
+var S=[
+  {n:"The Guardian",c:"L",r:"west",l:"EN",url:"https://www.theguardian.com/world",rss:"https://www.theguardian.com/world/rss",i:"Britisch-progressiv. Investigativ stark.",w:null,col:"#3a7a3a"},
+  {n:"Democracy Now",c:"L",r:"west",l:"EN",url:"https://www.democracynow.org",rss:"https://www.democracynow.org/democracynow.rss",i:"US-antiimperialistisch. Zivilgesellschaft.",w:null,col:"#3a7a3a"},
+  {n:"The Intercept",c:"L",r:"west",l:"EN",url:"https://theintercept.com",rss:"https://theintercept.com/feed/?rss",i:"Investigativ. NSA-Erbe.",w:null,col:"#3a7a3a"},
+  {n:"Al Jazeera EN",c:"L",r:"mideast",l:"EN",url:"https://www.aljazeera.com",rss:"https://www.aljazeera.com/xml/rss/all.xml",i:"Katar-finanziert. Pro-palaestinensisch.",w:null,col:"#3a7a3a"},
+  {n:"BBC News",c:"ML",r:"west",l:"EN",url:"https://www.bbc.com/news",rss:"https://feeds.bbci.co.uk/news/world/rss.xml",i:"Britisch-oeffentlich. Breite Abdeckung.",w:null,col:"#2a5aaa"},
+  {n:"NPR",c:"ML",r:"west",l:"EN",url:"https://www.npr.org",rss:"https://feeds.npr.org/1001/rss.xml",i:"US-oeffentlicher Rundfunk.",w:null,col:"#2a5aaa"},
+  {n:"Der Spiegel",c:"ML",r:"west",l:"DE",url:"https://www.spiegel.de",rss:"https://www.spiegel.de/schlagzeilen/tops/index.rss",i:"Deutsch, liberal, investigativ.",w:null,col:"#2a5aaa"},
+  {n:"The Hindu",c:"ML",r:"global",l:"EN",url:"https://www.thehindu.com",rss:"https://www.thehindu.com/news/international/?service=rss",i:"Indisch-linksliberal.",w:null,col:"#2a5aaa"},
+  {n:"Reuters",c:"C",r:"west",l:"EN",url:"https://www.reuters.com",rss:"https://feeds.reuters.com/reuters/topNews",i:"Agentur. Faktennah. Goldstandard.",w:null,col:"#888"},
+  {n:"AP News",c:"C",r:"west",l:"EN",url:"https://apnews.com",rss:"https://apnews.com/rss",i:"US-Agentur. Keine Meinung.",w:null,col:"#888"},
+  {n:"Axios",c:"C",r:"west",l:"EN",url:"https://www.axios.com",rss:"https://api.axios.com/feed/",i:"Smart-Brevity. Washington-Insider.",w:null,col:"#888"},
+  {n:"Politico",c:"C",r:"west",l:"EN",url:"https://www.politico.com",rss:"https://www.politico.com/rss/politicopicks.xml",i:"Policy & Kongress.",w:null,col:"#888"},
+  {n:"Middle East Eye",c:"C",r:"mideast",l:"EN",url:"https://www.middleeasteye.net",rss:"https://www.middleeasteye.net/rss",i:"Pro-arabisch. Nahost-Fokus.",w:null,col:"#888"},
+  {n:"The Economist",c:"MR",r:"west",l:"EN",url:"https://www.economist.com",rss:"https://www.economist.com/latest/rss.xml",i:"Klassisch-liberal. Meinungsstark.",w:null,col:"#a86000"},
+  {n:"Die Welt",c:"MR",r:"west",l:"DE",url:"https://www.welt.de",rss:"https://www.welt.de/feeds/latest.rss",i:"Konservativ-liberal. Springer.",w:null,col:"#a86000"},
+  {n:"FAZ",c:"MR",r:"west",l:"DE",url:"https://www.faz.net",rss:"https://www.faz.net/rss/aktuell/",i:"Konservativ. Wirtschaft, Feuilleton.",w:null,col:"#a86000"},
+  {n:"Jerusalem Post",c:"MR",r:"mideast",l:"EN",url:"https://www.jpost.com",rss:"https://www.jpost.com/Rss/RssFeedsHeadlines.aspx",i:"Israelisch-konservativ.",w:null,col:"#a86000"},
+  {n:"Fox News",c:"R",r:"west",l:"EN",url:"https://www.foxnews.com",rss:"https://moxie.foxnews.com/google-publisher/latest.xml",i:"US, stark rechts.",w:null,col:"#8b2020"},
+  {n:"Breitbart",c:"R",r:"west",l:"EN",url:"https://www.breitbart.com",rss:"https://feeds.feedburner.com/breitbart",i:"MAGA-nah. Als Framing-Dokument.",w:"Faktencheck empfohlen.",col:"#8b2020"},
+  {n:"RT",c:"R",r:"russia",l:"EN/DE",url:"https://www.rt.com",rss:"https://www.rt.com/rss/",i:"Staatlich russisch. Kremls Framing.",w:"EU-weit gesperrt.",col:"#6a3aaa"},
+  {n:"TASS",c:"R",r:"russia",l:"EN/RU",url:"https://tass.com",rss:"https://tass.com/rss/v2.xml",i:"Russische Staatsagentur.",w:"Staatlich kontrolliert.",col:"#6a3aaa"},
+  {n:"Sputnik",c:"R",r:"russia",l:"DE/EN",url:"https://sputnikglobe.com",rss:"https://sputnikglobe.com/export/rss2/archive/index.xml",i:"Auslandskanal Russlands.",w:"EU-weit gesperrt.",col:"#6a3aaa"},
+  {n:"Global Times",c:"R",r:"china",l:"EN",url:"https://www.globaltimes.cn",rss:"https://www.globaltimes.cn/rss/outbrain.xml",i:"KPCh-nah. Pekinger Linie.",w:"Parteinahes Medium.",col:"#8b2020"},
+  {n:"Xinhua",c:"R",r:"china",l:"EN",url:"http://www.xinhuanet.com/english",rss:"https://www.xinhuanet.com/english/rss/worldrss.xml",i:"Chinesische Staatsagentur.",w:"Staatlich kontrolliert.",col:"#8b2020"},
+];
+var tC={west:"t-west",russia:"t-russia",china:"t-china",mideast:"t-mideast",global:"t-global"};
+var tL={west:"West",russia:"RU",china:"CN",mideast:"ME",global:"GL"};
+var cols={L:"cL",ML:"cML",C:"cC",MR:"cMR",R:"cR"};
+var ar="all",ab="all",ac=null,curS=null,kws=["Trump","China","Iran","Ukraine"];
+var nfActive={},nfItems=[];
+
+function fmtDate(d){if(!d)return"";try{var dt=new Date(d);return('0'+dt.getDate()).slice(-2)+'.'+('0'+(dt.getMonth()+1)).slice(-2)+' '+('0'+dt.getHours()).slice(-2)+':'+('0'+dt.getMinutes()).slice(-2);}catch(e){return"";}}
+function fetchRSS(url,cb,limit){if(!url){cb(null,"No RSS.");return;}fetch(PROXY+encodeURIComponent(url)+"&count="+(limit||8)).then(function(r){return r.json();}).then(function(d){cb(d.items&&d.items.length?d.items.slice(0,limit||8):null,null);}).catch(function(){cb(null,"Feed error.");});}
+
+// Bias filter row
+var br=document.getElementById("biasRow");
+[["all","Alle"],["L","Links"],["ML","M-Links"],["C","Mitte"],["MR","M-Rechts"],["R","Rechts"]].forEach(function(p){
+  var b=document.createElement("button");b.className="hbtn"+(p[0]==="all"?" on":"");b.textContent=p[1];
+  b.onclick=function(){ab=p[0];document.querySelectorAll("#biasRow .hbtn").forEach(function(x){x.classList.remove("on");});b.classList.add("on");render();};
+  br.appendChild(b);
+});
+document.getElementById("regionFilters").onclick=function(e){
+  if(!e.target.dataset.r)return;ar=e.target.dataset.r;
+  document.querySelectorAll("#regionFilters .rfbtn").forEach(function(b){b.classList.remove("on");});e.target.classList.add("on");render();
+};
+
+function render(){
+  Object.values(cols).forEach(function(id){document.getElementById(id).innerHTML="";});
+  S.forEach(function(s){
+    if(ab!=="all"&&s.c!==ab)return;if(ar!=="all"&&s.r!==ar)return;
+    var d=document.createElement("div");d.className="sc"+(curS&&curS.n===s.n?" active":"");
+    d.innerHTML='<div class="sc-name">'+s.n+'</div><div class="sc-lang">'+s.l+'</div><span class="sc-tag '+tC[s.r]+'">'+tL[s.r]+'</span>';
+    d.onclick=function(){showDetail(s,d);};
+    document.getElementById(cols[s.c]).appendChild(d);
+  });
+}
+function showDetail(s,card){
+  if(ac)ac.classList.remove("active");ac=card;card.classList.add("active");curS=s;
+  document.getElementById("dn").textContent=s.n+" · "+s.l;
+  document.getElementById("di").textContent=s.i;
+  document.getElementById("openLink").href=s.url;
+  var w=document.getElementById("dw");
+  if(s.w){w.textContent="⚠ "+s.w;w.style.display="block";}else{w.style.display="none";}
+  document.getElementById("na").style.display="none";document.getElementById("nl").innerHTML="";document.getElementById("ns").textContent="";
+  document.getElementById("dp").classList.add("vis");
+  document.getElementById("loadNews").onclick=function(){loadNews(s);};
+}
+function loadNews(s){
+  var na=document.getElementById("na");na.style.display="block";
+  document.getElementById("ns").textContent="Loading...";document.getElementById("nl").innerHTML="";
+  fetchRSS(s.rss,function(items,err){
+    document.getElementById("ns").textContent="";var ul=document.getElementById("nl");
+    if(err||!items){ul.innerHTML='<li style="font-family:Share Tech Mono,monospace;font-size:8px;color:var(--text3);padding:.4rem 0">'+(err||"No articles")+'</li>';return;}
+    items.slice(0,6).forEach(function(item){
+      var li=document.createElement("li");
+      li.innerHTML='<a href="'+item.link+'" target="_blank">'+item.title+'</a><div class="news-date">'+fmtDate(item.pubDate)+'</div>';
+      ul.appendChild(li);
+    });
+  },6);
+}
+document.getElementById("dcx").onclick=function(){document.getElementById("dp").classList.remove("vis");curS=null;render();};
+
+// Keywords
+function renderKW(){var c=document.getElementById("kwTags");c.innerHTML="";kws.forEach(function(k,i){var s=document.createElement("span");s.className="kw-tag";s.innerHTML=k+'<button onclick="rmKW('+i+')">&#10005;</button>';c.appendChild(s);});}
+window.rmKW=function(i){kws.splice(i,1);renderKW();};
+document.getElementById("kwAdd").onclick=function(){var v=document.getElementById("kwIn").value.trim();if(!v||kws.indexOf(v)>-1)return;kws.push(v);document.getElementById("kwIn").value="";renderKW();};
+document.getElementById("kwIn").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("kwAdd").click();});
+
+// NF
+var NF=[
+  {n:"BBC",rss:"https://feeds.bbci.co.uk/news/world/rss.xml",col:"#2a5aaa",bias:"ML"},
+  {n:"Reuters",rss:"https://feeds.reuters.com/reuters/topNews",col:"#888",bias:"C"},
+  {n:"Al Jazeera",rss:"https://www.aljazeera.com/xml/rss/all.xml",col:"#3a7a3a",bias:"L"},
+  {n:"Fox News",rss:"https://moxie.foxnews.com/google-publisher/latest.xml",col:"#8b2020",bias:"R"},
+  {n:"Spiegel",rss:"https://www.spiegel.de/schlagzeilen/tops/index.rss",col:"#2a5aaa",bias:"ML"},
+  {n:"Die Welt",rss:"https://www.welt.de/feeds/latest.rss",col:"#a86000",bias:"MR"},
+  {n:"TASS",rss:"https://tass.com/rss/v2.xml",col:"#6a3aaa",bias:"ST"},
+  {n:"Guardian",rss:"https://www.theguardian.com/world/rss",col:"#3a7a3a",bias:"L"},
+];
+function buildNF(){var c=document.getElementById("nfFeeds");c.innerHTML="";NF.forEach(function(src,i){var b=document.createElement("button");b.className="nff"+(nfActive[i]?" on":"");b.textContent=src.n;b.onclick=function(){toggleNF(i,b,src);};c.appendChild(b);});}
+function toggleNF(i,btn,src){if(nfActive[i]){delete nfActive[i];btn.classList.remove("on");nfItems=nfItems.filter(function(x){return x.src!==src.n;});renderNF();}else{nfActive[i]=true;btn.classList.add("on");fetchRSS(src.rss,function(items){if(items)items.forEach(function(item){nfItems.push({title:item.title,link:item.link,date:item.pubDate,src:src.n,col:src.col,bias:src.bias});});nfItems.sort(function(a,b){return new Date(b.date)-new Date(a.date);});renderNF();},10);}}
+function renderNF(){var c=document.getElementById("nfBody");if(!nfItems.length){c.innerHTML='<div class="nf-empty">Quelle auswählen.</div>';return;}c.innerHTML="";nfItems.forEach(function(a){var d=document.createElement("div");d.className="nf-item";d.innerHTML='<span class="nf-badge" style="color:'+a.col+';border-color:'+a.col+'44">'+a.src+'<br><span style="font-size:7px;opacity:.5">'+a.bias+'</span></span><div class="nf-headline"><a href="'+a.link+'" target="_blank">'+a.title+'</a><div class="nf-meta">'+fmtDate(a.date)+'</div></div>';c.appendChild(d);});}
+document.getElementById("nfBtn").onclick=function(){document.getElementById("nfOv").classList.add("vis");buildNF();};
+document.getElementById("nfClose").onclick=function(){document.getElementById("nfOv").classList.remove("vis");};
+document.getElementById("nfOv").onclick=function(e){if(e.target===this)this.classList.remove("vis");};
+
+renderKW();render();
+</script>
+
+</body>
+</html>
