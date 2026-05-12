@@ -234,7 +234,9 @@ async function doLogin(){var pw=document.getElementById('pwInput').value;var h=a
 function doLogout(){sessionStorage.removeItem(SK);location.reload();}
 document.getElementById('pwInput').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 
-var PROXY='https://api.rss2json.com/v1/api.json?rss_url=';
+// dual-proxy setup
+function getRSS2JSON(url,limit){return 'https://api.rss2json.com/v1/api.json?count='+(limit||10)+'&rss_url='+encodeURIComponent(url);}
+function getCORSProxy(url){return 'https://corsproxy.io/?'+encodeURIComponent(url);}
 var SOURCES=[
   {n:'BBC',c:'ML',r:'west',url:'https://feeds.bbci.co.uk/news/world/rss.xml',col:'#2a5aaa'},
   {n:'Reuters',c:'C',r:'west',url:'https://feeds.reuters.com/reuters/topNews',col:'#666'},
@@ -267,16 +269,49 @@ function fmt(d){if(!d)return'';try{var dt=new Date(d);if(isNaN(dt))return'';retu
 function matchKW(t){var tl=t.toLowerCase();return state.keywords.filter(function(k){return tl.indexOf(k.toLowerCase())>-1;});}
 function strip(h){return h.replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&#8217;/g,"'").replace(/&#8211;/g,'-').replace(/&#8212;/g,'-').trim();}
 
+function parseXML(xml,limit){
+  var items=[];var itemRx=/<item[\s\S]*?<\/item>/gi;
+  var titleRx=/<title[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/title>|<title[^>]*>([\s\S]*?)<\/title>/i;
+  var linkRx=/<link[^>]*href="([^"]+)"|<link>([\s\S]*?)<\/link>/i;
+  var guidRx=/<guid[^>]*>([\s\S]*?)<\/guid>/i;
+  var dateRx=/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i;
+  var match;
+  while((match=itemRx.exec(xml))!==null){
+    var chunk=match[0];
+    var tm=titleRx.exec(chunk);var title=tm?(tm[1]||tm[2]||'').trim():'';
+    var lm=linkRx.exec(chunk);var link=lm?(lm[1]||lm[2]||'').trim():'';
+    if(!link){var gm=guidRx.exec(chunk);if(gm&&gm[1].indexOf('http')===0)link=gm[1].trim();}
+    var dm=dateRx.exec(chunk);var date=dm?dm[1].trim():'';
+    title=title.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&#8217;/g,"'").replace(/&#8211;/g,'-').replace(/<[^>]*>/g,'').trim();
+    if(title&&link)items.push({title:title,link:link,pubDate:date});
+    if(items.length>=limit)break;
+  }
+  return items;
+}
+function mapItems(items,src){
+  return items.map(function(item){
+    var t=strip(item.title||'');var kws=matchKW(t);
+    return{title:t,link:item.link||'',date:item.pubDate||'',src:src.n,bias:src.c,col:src.col,hit:kws.length>0,kws:kws};
+  });
+}
 function fetchFeed(src,cb,limit){
-  fetch(PROXY+encodeURIComponent(src.url)+'&count='+(limit||8))
+  // Try rss2json first
+  fetch('https://api.rss2json.com/v1/api.json?count='+(limit||10)+'&rss_url='+encodeURIComponent(src.url))
     .then(function(r){return r.json();})
     .then(function(d){
-      if(!d.items||!d.items.length){cb([]);return;}
-      cb(d.items.slice(0,limit||8).map(function(item){
-        var kws=matchKW(strip(item.title||''));
-        return{title:strip(item.title||''),link:item.link||'',date:item.pubDate||'',src:src.n,bias:src.c,col:src.col,hit:kws.length>0,kws:kws};
-      }));
-    }).catch(function(){cb([]);});
+      if(d.items&&d.items.length){cb(mapItems(d.items.slice(0,limit||10),src));return;}
+      throw new Error('empty');
+    })
+    .catch(function(){
+      // Fallback: corsproxy + manual XML parse
+      fetch('https://corsproxy.io/?'+encodeURIComponent(src.url))
+        .then(function(r){return r.text();})
+        .then(function(xml){
+          var items=parseXML(xml,limit||10);
+          cb(mapItems(items,src));
+        })
+        .catch(function(){cb([]);});
+    });
 }
 
 function loadAll(){
