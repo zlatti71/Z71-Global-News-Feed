@@ -159,7 +159,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle
       </div>
       <div class="hdr-actions">
         <span id="tsLabel" style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text4)"></span>
-        <button class="hbtn on" id="loadAllBtn" onclick="loadAll()">&#9654; Load Feed</button>
+        <button class="hbtn on" id="loadAllBtn" onclick="loadAll()"> Load Feed</button>
         <button class="hbtn" id="nfBtn">&#9670; Newsflash</button>
         <button class="hbtn" onclick="window.open('https://zlatti71.github.io/Z71-Global-News-Feed/compass.html','_blank')">&#9685; Compass</button>
         <button class="hbtn danger" onclick="doLogout()">Exit</button>
@@ -295,22 +295,32 @@ function mapItems(items,src){
   });
 }
 function fetchFeed(src,cb,limit){
-  // Try rss2json first
-  fetch('https://api.rss2json.com/v1/api.json?count='+(limit||10)+'&rss_url='+encodeURIComponent(src.url))
+  var lim=limit||10;
+  // Try 1: rss2json
+  fetch('https://api.rss2json.com/v1/api.json?count='+lim+'&rss_url='+encodeURIComponent(src.url),{mode:'cors'})
     .then(function(r){return r.json();})
     .then(function(d){
-      if(d.items&&d.items.length){cb(mapItems(d.items.slice(0,limit||10),src));return;}
+      if(d.items&&d.items.length){cb(mapItems(d.items.slice(0,lim),src));return;}
       throw new Error('empty');
     })
     .catch(function(){
-      // Fallback: corsproxy + manual XML parse
-      fetch('https://corsproxy.io/?'+encodeURIComponent(src.url))
-        .then(function(r){return r.text();})
-        .then(function(xml){
-          var items=parseXML(xml,limit||10);
-          cb(mapItems(items,src));
+      // Try 2: allorigins
+      fetch('https://api.allorigins.win/get?url='+encodeURIComponent(src.url))
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d.contents){
+            var items=parseXML(d.contents,lim);
+            if(items.length){cb(mapItems(items,src));return;}
+          }
+          throw new Error('empty2');
         })
-        .catch(function(){cb([]);});
+        .catch(function(){
+          // Try 3: corsproxy.io
+          fetch('https://corsproxy.io/?'+encodeURIComponent(src.url))
+            .then(function(r){return r.text();})
+            .then(function(xml){cb(mapItems(parseXML(xml,lim),src));})
+            .catch(function(){cb([]);});
+        });
     });
 }
 
@@ -326,7 +336,7 @@ function loadAll(){
       pending--;
       if(pending===0){
         state.articles.sort(function(a,b){return new Date(b.date)-new Date(a.date);});
-        renderFeed();btn.textContent='&#9654; Refresh';btn.disabled=false;
+        renderFeed();btn.textContent='> Refresh';btn.disabled=false;
         var now=new Date();document.getElementById('tsLabel').textContent='Updated '+('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);
       }
     },8);
